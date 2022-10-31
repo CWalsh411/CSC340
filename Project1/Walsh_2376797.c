@@ -37,8 +37,10 @@ int[] setOptionArr(char[] in){
 int main(int argc, char** argv){
      int option[4] = {1, 1, 1, 0};//{n, w, c, M}
      int BUFFER_SIZE = -1;
+     int totalNumOfFiles = 0;
      char** currentFile = argv;
      currentFile++;
+     FILE fp*;
      switch (argc) {
           case 1:
                fprintf(stderr, "Input must follow format \"./MYLASTNAME_MYSTUDENTID.exe [OPTION]... BUFFER_SIZE [INPUT FILE]...\"");
@@ -49,6 +51,7 @@ int main(int argc, char** argv){
                if(BUFFER_SIZE < 64 || BUFFER_SIZE > 256)//check if BUFFER_SIZE was a valid size
                     return 1;
                currentFile = "prj1inp.txt";
+               totalNumOfFiles = 1;
                break;
 
           case 3:
@@ -58,12 +61,14 @@ int main(int argc, char** argv){
                     if(BUFFER_SIZE < 64 || BUFFER_SIZE > 256)
                          return 1;
                     currentFile = "prj1inp.txt";
+                    totalNumOfFiles = 1;
                }
                else if(atoi(argv[1])){//check if number for BUFFER_SIZE
                     BUFFER_SIZE = atoi(argv[1]);
                     if(BUFFER_SIZE < 64 || BUFFER_SIZE > 256)
                          return 1;
                     currentFile++;
+                    totalNumOfFiles = 1;
 
                }
                else return 1;
@@ -77,12 +82,14 @@ int main(int argc, char** argv){
                     if(BUFFER_SIZE < 64 || BUFFER_SIZE > 256)
                          return 1;
                     currentFile++;
+                    totalNumOfFiles = argc - 3;
                }
                else if(atoi(argv[1])){//check if number for BUFFER_SIZE
                     BUFFER_SIZE = atoi(argv[1]);
                     if(BUFFER_SIZE < 64 || BUFFER_SIZE > 256)
                          return 1;
                     currentFile++;
+                    totalNumOfFiles = argc - 2;
                }
                else return 1;
                break;
@@ -92,11 +99,23 @@ int main(int argc, char** argv){
      pid_t pid = fork();
      if(pid < 0){
           fprintf(stderr, "Parent: Fork Failed");
-	return 2;
+	     return 2;
 	}
      else if(pid == 0){
           close(fd[1]);
           n = read(fd[0], line, BUFFER_SIZE);
      }
+     else{
+          for(int i = 0; i < totalNumOfFiles; i++){
+               fp = fopen(*currentFile);
+               char buf[BUFFER_SIZE];
+               close(fd[0]);
+               while(fgets(buf, BUFFER_SIZE, fp))
+                    write(fd[1], buf, BUFFER_SIZE);
+               currentFile++;
+          }
+
+     }
+     return 0;
 
 }
