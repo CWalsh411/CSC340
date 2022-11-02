@@ -95,7 +95,6 @@ int main(int argc, char** argv){
                break;
      }
      int n, fd[2];
-     char line[BUFFER_SIZE];
      pid_t pid = fork();
      if(pid < 0){
           fprintf(stderr, "Parent: Fork Failed");
@@ -103,7 +102,23 @@ int main(int argc, char** argv){
 	}
      else if(pid == 0){
           close(fd[1]);
-          n = read(fd[0], line, BUFFER_SIZE);
+          char line[BUFFER_SIZE];
+          int NEWLINE_COUNT = 0, WORD_COUNT = 0, CHAR_COUNT = 0, MAX_LINE = 0, currentLine = 0;
+          while(read(fd[0], line, BUFFER_SIZE)){
+               for(int i = 0; i < BUFFER_SIZ; i++){
+                    CHAR_COUNT++;
+                    currentLine++;
+                    if(line[i] == '\n'){
+                         NEWLINE_COUNT++;
+                         if(currentLine > MAX_LINE)
+                              MAX_LINE = currentLine;
+                         currentLine = 0;
+                         WORD_COUNT++;
+                    }
+                    if(line[i] == ' ' || !line[i])
+                         WORD_COUNT++;
+               }
+          }
      }
      else{
           for(int i = 0; i < totalNumOfFiles; i++){
