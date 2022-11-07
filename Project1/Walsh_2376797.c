@@ -114,10 +114,10 @@ int main(int argc, char** argv){
      struct mq_attr attr;
      attr.mq_maxmsg = MSG_CAPACITY;
      attr.mq_msgsize = MSG_SIZE;
-     mqd_t mqd = mq_open("Connorqueue",  O_CREAT | O_RDWR, 0644, &attr);//open message queue
+     mqd_t mqd = mq_open("cqueue",  O_CREAT | O_RDWR, 0644, &attr);//open message queue
      if (mqd == (mqd_t) -1){
           printf("Parent:  mq_open error\n");
-          mq_unlink("Connorqueue");
+          mq_unlink("cqueue");
           return 2;
       }
      if(pid < 0){//check if process was created with no error
@@ -174,7 +174,7 @@ int main(int argc, char** argv){
           for(int i = 0; i < totalNumOfFiles; i++){//loop through input files
                fp = fopen(*currentFile, "r");
                close(fd[0]);
-               while(fgets(buf, BUFFER_SIZE, fp)){//read from input
+               while(read(fp, buf, BUFFER_SIZE)){//read from input
                     write(fd[1], buf, BUFFER_SIZE);//write to child
                }
                currentFile++;
